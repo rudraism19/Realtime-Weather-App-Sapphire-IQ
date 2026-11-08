@@ -1,5 +1,6 @@
 
 import React from "react";
+import SearchBox from "./components/SearchBox";
 
 import {
   Box,
@@ -128,6 +129,9 @@ function App() {
             Disabled
           </Button>
         </Stack>
+        <SearchBox
+         onSearch={(city) => console.log("Searching:", city)}
+              />
 
         <Divider sx={{ my: 4 }} />
 
