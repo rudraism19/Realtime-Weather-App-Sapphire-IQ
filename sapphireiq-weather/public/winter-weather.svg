@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Winter snowflake</title>
+  <g fill="none" stroke="#0284c7" stroke-linecap="round" stroke-width="7">
+    <path d="M80 18v124M26 49l108 62M26 111l108-62"/>
+    <path d="M80 18l-12 13m12-13 12 13M80 142l-12-13m12 13 12-13"/>
+    <path d="M26 49l18 1m-18-1 7 16m-7 46 18-1m-18 1 7-16"/>
+    <path d="M134 49l-18 1m18-1-7 16m7 46-18-1m18 1-7-16"/>
+  </g>
+  <circle cx="80" cy="80" r="13" fill="#38bdf8"/>
+</svg>
