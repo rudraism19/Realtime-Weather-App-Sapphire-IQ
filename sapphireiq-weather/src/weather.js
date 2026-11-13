@@ -16,8 +16,22 @@ async function requestWeather(endpoint, city) {
     units: "metric"
   }).toString();
 
-  const response = await fetch(url);
-  const data = await response.json().catch(() => ({}));
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (networkError) {
+    // Required PRD fallback: log network failures for developer diagnostics.
+    console.error("Weather API network request failed:", networkError);
+    throw new Error("Network connection failed. Check your internet connection and try again.");
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (parseError) {
+    console.error("Weather API returned an invalid JSON response:", parseError);
+    throw new Error("The weather service returned an invalid response. Please try again.");
+  }
 
   if (!response.ok) {
     if (response.status === 404) throw new Error(`City "${city}" was not found. Check the spelling and try again.`);
