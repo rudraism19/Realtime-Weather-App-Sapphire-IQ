@@ -1,4 +1,6 @@
-import { Card, CardContent, Grid, Stack, Typography, Box } from "@mui/material";
+import {
+  Card, CardContent, CardMedia, Grid, Stack, Typography, Box
+} from "@mui/material";
 import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 import CloudRoundedIcon from "@mui/icons-material/CloudRounded";
 import ThunderstormRoundedIcon from "@mui/icons-material/ThunderstormRounded";
@@ -38,21 +40,43 @@ function Metric({ icon: Icon, label, value }) {
 }
 
 export default function InfoBox({ info, unit = "C" }) {
-  const WeatherIcon = conditionIcons[info.condition] || WbSunnyRoundedIcon;
-  const tempColor = info.temperature >= 30 ? "#dc2626" : info.temperature <= 10 ? "#2563eb" : "text.primary";
+  const isFreezing = info.temperature <= 0;
+  const WeatherIcon = isFreezing ? AcUnitRoundedIcon : (conditionIcons[info.condition] || WbSunnyRoundedIcon);
+  const tempColor = info.temperature > 30 ? "#dc2626" : info.temperature < 10 ? "#2563eb" : "text.primary";
+  const weatherImage = isFreezing
+    ? "/winter-weather.svg"
+    : `https://openweathermap.org/img/wn/${info.icon}@4x.png`;
 
   return (
-    <Card elevation={0} className="weather-card">
+    <Card
+      elevation={0}
+      className={isFreezing ? "weather-card winter-weather-card" : "weather-card"}
+      sx={isFreezing ? {
+        background: "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 55%, #ffffff 100%) !important",
+        borderColor: "#bae6fd"
+      } : undefined}
+    >
       <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
         <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} spacing={2}>
           <Box>
             <Typography variant="h5" fontWeight={800}>{info.city}, {info.country}</Typography>
             <Typography color="text.secondary" sx={{ textTransform: "capitalize" }}>{info.description}</Typography>
+            {isFreezing && (
+              <Typography variant="caption" color="info.dark" fontWeight={700}>
+                FREEZING CONDITIONS · WINTER MODE
+              </Typography>
+            )}
           </Box>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <WeatherIcon sx={{ fontSize: 66, color: info.temperature <= 0 ? "#60a5fa" : "#f59e0b" }} />
+            <CardMedia
+              component="img"
+              image={weatherImage}
+              alt={isFreezing ? "Snowflake winter weather" : `${info.condition} weather`}
+              sx={{ width: 88, height: 88, objectFit: "contain" }}
+            />
+            <WeatherIcon sx={{ fontSize: 34, color: isFreezing ? "#0284c7" : "#f59e0b" }} />
             <Box>
-              <Typography variant="h2" fontWeight={800} sx={{ color: tempColor, lineHeight: 1.1 }}>
+              <Typography variant="h2" fontWeight={800} sx={{ color: isFreezing ? "#0369a1" : tempColor, lineHeight: 1.1 }}>
                 {temperature(info.temperature, unit)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
