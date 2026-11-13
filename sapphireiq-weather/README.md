@@ -1,24 +1,24 @@
 # SapphireIQ Weather Application 🌤️
 
-SapphireIQ is a responsive weather dashboard built with **React, Vite, Material UI and the OpenWeatherMap API**. Search for a city to view its current weather and a five-day forecast.
+SapphireIQ is a responsive weather dashboard built with **React, Vite, Material UI and the OpenWeatherMap REST API**. Search for a city to view current conditions and a five-day forecast.
 
 ## Features
 
-- Search weather by city name
-- Input validation (trims whitespace and requires at least two characters)
-- Current weather: temperature, feels-like temperature, daily minimum/maximum, humidity, wind speed, pressure and visibility
-- Five-day forecast, summarized from OpenWeatherMap's 5 Day / 3 Hour Forecast endpoint
+- Search weather by city name with controlled input validation
+- Default city loads as **Delhi** when the application starts
+- Current conditions: temperature, feels-like temperature, minimum/maximum temperature, humidity, wind speed, pressure and visibility
+- Five-day forecast summarized from the OpenWeatherMap 5 Day / 3 Hour Forecast endpoint
 - Celsius / Fahrenheit display toggle
-- Weather-condition icons and responsive dashboard layout
-- Loading indicator and readable API error messages
-- Default weather lookup for Bhopal
+- Dynamic condition icons and a special snowy/frost theme at temperatures of **0°C or below**
+- Loading indicator and contextual API error alerts, including city-not-found feedback
+- Network failures are logged to the browser console for debugging
+- Responsive Material UI layout
 
 ## Tech stack
 
-- React 19
-- Vite
+- React 19 and Vite
 - Material UI (MUI) and MUI Icons
-- OpenWeatherMap REST API
+- OpenWeatherMap Current Weather and 5 Day / 3 Hour Forecast APIs
 - JavaScript (ES modules) and CSS
 
 ## Project structure
@@ -26,12 +26,14 @@ SapphireIQ is a responsive weather dashboard built with **React, Vite, Material 
 ```text
 sapphireiq-weather/
 ├── public/
+│   └── winter-weather.svg
 ├── src/
 │   ├── components/
 │   │   ├── Forecast.jsx
 │   │   ├── InfoBox.jsx
 │   │   └── SearchBox.jsx
 │   ├── App.jsx
+│   ├── WeatherApp.jsx
 │   ├── index.css
 │   ├── main.jsx
 │   └── weather.js
@@ -51,7 +53,7 @@ git clone https://github.com/rudraism19/Realtime-Weather-App-Sapphire-IQ.git
 cd Realtime-Weather-App-Sapphire-IQ/sapphireiq-weather
 ```
 
-If you already have the repository locally, pull the latest changes from its default branch:
+If you already cloned the repository, pull the latest changes from its default branch:
 
 ```bash
 git pull
@@ -69,14 +71,14 @@ npm install
 2. Verify your email address.
 3. Open the [API keys dashboard](https://home.openweathermap.org/api_keys).
 4. Copy an existing key or generate a new one.
-5. If a newly generated key does not work immediately, allow time for activation.
+5. If a new key is not active immediately, allow time for activation.
 
-The application uses these API endpoints:
+The application calls these endpoints using the same API key:
 
-- **Current weather:** `/data/2.5/weather`
-- **Five-day forecast:** `/data/2.5/forecast`
+- Current weather: `/data/2.5/weather`
+- Five-day forecast: `/data/2.5/forecast`
 
-Both requests use the same API key and request metric units.
+Both requests use metric units (`units=metric`).
 
 ### 4. Configure the environment variable
 
@@ -86,7 +88,7 @@ Create a file named `.env` in the `sapphireiq-weather` project root (the same di
 VITE_OPENWEATHER_API_KEY=your_actual_api_key
 ```
 
-Do not add quotation marks or spaces around the equals sign. Keep your real `.env` file out of Git commits; it is ignored by the project's `.gitignore`.
+Do not add quotation marks or spaces around the equals sign. The real `.env` file is ignored by Git.
 
 ### 5. Start the development server
 
@@ -94,62 +96,60 @@ Do not add quotation marks or spaces around the equals sign. Keep your real `.en
 npm run dev
 ```
 
-Open the local URL printed by Vite in your terminal (usually `http://localhost:5173`).
+Open the local URL printed by Vite (usually `http://localhost:5173`).
 
-### 6. Create a production build
+### 6. Create and preview a production build
 
 ```bash
 npm run build
-```
-
-To preview the production build locally:
-
-```bash
 npm run preview
 ```
 
-## How the application works
+## Application architecture
 
-1. **SearchBox** manages the city input, validates it and calls the `onSearch` callback.
-2. **App** owns the weather, forecast, loading, error and temperature-unit state. It passes the search callback down to SearchBox and the fetched data to display components (state lifting).
-3. **weather.js** calls OpenWeatherMap asynchronously, handles HTTP/API errors and normalizes the response data.
-4. **InfoBox** receives current weather through props and displays conditions and weather metrics.
-5. **Forecast** receives the forecast array through props and renders daily summaries.
-6. **Dynamic UI** displays loading and error states, maps conditions to icons and converts displayed temperatures between Celsius and Fahrenheit without another API request.
+- **WeatherApp.jsx:** root/container component. Owns weather, forecast, loading, error, unit and last-updated state. Loads Delhi on mount and passes data down through props.
+- **SearchBox.jsx:** presentational form with local controlled input state. Validates trimmed input and sends the city to WeatherApp through an `onSearch` callback.
+- **weather.js:** performs asynchronous API requests, parses JSON, normalizes weather data and handles HTTP/network errors.
+- **InfoBox.jsx:** prop-driven MUI weather card using Card, CardContent and CardMedia. Applies red text above 30°C, blue text below 10°C, and a snowy/frost presentation at or below 0°C.
+- **Forecast.jsx:** renders the five-day forecast from the parent-provided forecast data.
+- **App.jsx:** backward-compatible re-export of WeatherApp for older imports.
+
+Data flows down from WeatherApp through props; user actions flow upward through callbacks.
+
+## Learning modules and PRD checklist
+
+1. **MUI fundamentals:** Material UI buttons, variants, icons, typography and layout.
+2. **SearchBox:** controlled input, `useState`, `onChange`, `onSubmit`, `preventDefault()`, whitespace trimming and minimum two-character validation.
+3. **Weather API:** OpenWeatherMap API key, `fetch()`, async/await, JSON parsing, data sanitization, wind speed and country extraction, and console logging for network failures.
+4. **InfoBox:** reusable prop-driven MUI Card with CardMedia, CardContent, responsive metrics and temperature color thresholds.
+5. **WeatherApp and state lifting:** parent-owned state, props, callback functions, default Delhi lookup on mount and a Last Updated timestamp.
+6. **Dynamic UI:** condition-based icons, MUI Alert errors including 404 city-not-found, frost mode at temperatures ≤ 0°C, and Celsius/Fahrenheit conversion.
 
 ## Troubleshooting
 
 | Problem | What to check |
 |---|---|
-| Missing API key message | Confirm `.env` is in the project root and the variable is named exactly `VITE_OPENWEATHER_API_KEY`. |
-| API returns 401 | Check the key for typos and confirm it has become active. |
-| City returns 404 | Check the spelling and try a well-known city name. |
+| Missing API key message | Ensure `.env` is in the project root and the variable is exactly `VITE_OPENWEATHER_API_KEY`. |
+| API returns 401 | Check the API key and whether it has finished activating. |
+| City returns 404 | Check the city spelling and try a well-known city. |
 | API returns 429 | The API rate limit may have been reached; wait and retry. |
-| Changes to `.env` are not detected | Stop Vite with `Ctrl + C`, then run `npm run dev` again. |
-| Dependencies or modules are missing | Run `npm install` from the directory containing `package.json`. |
-| Network request fails | Check your internet connection and browser developer console. |
+| Network error | Check internet connectivity and the browser console. |
+| Environment changes are not detected | Stop Vite with `Ctrl + C`, then run `npm run dev` again. |
+| Dependencies are missing | Run `npm install` from the directory containing `package.json`. |
 
 ## Deployment
 
-You can deploy the `sapphireiq-weather` application directory to a Vite-compatible host such as [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/).
+Deploy the `sapphireiq-weather` directory to Vercel or Netlify:
 
-- Set the build command to `npm run build`.
-- Set the output directory to `dist`.
-- Add `VITE_OPENWEATHER_API_KEY` to the host's environment variables.
-- Redeploy after adding or changing environment variables.
+- Build command: `npm run build`
+- Output directory: `dist`
+- Environment variable: `VITE_OPENWEATHER_API_KEY`
+
+Redeploy after changing hosting environment variables.
 
 ## API key security
 
-**Important:** Vite exposes variables prefixed with `VITE_` in the client-side bundle. This setup is convenient for a learning project, but the API key is visible to users in the browser and must not be treated as a secret. Do not commit your real `.env` file. For a public production application, route weather requests through a backend/serverless function and apply appropriate rate limits and key restrictions where supported.
-
-## Learning modules
-
-1. **MUI fundamentals:** buttons, typography, icons, variants, colors and layout.
-2. **SearchBox:** controlled inputs, React state, event handling and validation.
-3. **Weather API integration:** `fetch`, async/await, JSON parsing and error handling.
-4. **InfoBox:** reusable, prop-driven weather display component.
-5. **State lifting:** parent-owned state, callbacks, default city loading and timestamps.
-6. **Dynamic UI:** conditional rendering, loading/error feedback, weather icons and Celsius/Fahrenheit conversion.
+**Important:** Vite exposes variables prefixed with `VITE_` in the client-side bundle. This is convenient for a learning project, but the API key is visible to users in the browser and must not be treated as a secret. Never commit your real `.env` file. For a public production application, proxy weather requests through a backend/serverless function and apply appropriate rate limits.
 
 ---
 
