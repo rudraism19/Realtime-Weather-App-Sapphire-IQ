@@ -1,79 +1,50 @@
-
 import { useState } from "react";
-
-import {
-  TextField,
-  Button,
-  Paper,
-  Typography,
-  Stack,
-} from "@mui/material";
-
+import { Button, Paper, Stack, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-export default function SearchBox({ onSearch }) {
-
+export default function SearchBox({ onSearch, loading = false }) {
   const [city, setCity] = useState("");
   const [error, setError] = useState("");
 
-  const handleChange = (event) => {
-    setCity(event.target.value);
-
-    if (error) {
-      setError("");
-    }
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    const trimmedCity = city.trim();
-
-    if (trimmedCity.length < 2) {
-      setError("Please enter at least 2 characters");
+    const value = city.trim();
+    if (value.length < 2) {
+      setError("Enter at least 2 characters.");
       return;
     }
-
     setError("");
-    onSearch(trimmedCity);
+    onSearch(value);
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        mt: 3,
-        borderRadius: 3,
-        border: "1px solid #e2e8f0",
-      }}
-    >
-      <Typography variant="h6" fontWeight="bold" mb={2}>
-        Search Weather
-      </Typography>
-
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
-
+    <Paper component="section" elevation={0} className="search-panel">
+      <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Search weather</Typography>
+      <form onSubmit={handleSubmit} noValidate>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
           <TextField
             fullWidth
-            label="Enter City Name"
+            label="City name"
             placeholder="e.g. Bhopal, Mumbai, Delhi"
             value={city}
-            onChange={handleChange}
+            onChange={(event) => {
+              setCity(event.target.value);
+              if (error) setError("");
+            }}
             error={Boolean(error)}
-            helperText={error || "Search weather by city"}
+            helperText={error || "Search by city name"}
+            inputProps={{ maxLength: 80 }}
           />
-
           <Button
             type="submit"
             variant="contained"
-            startIcon={<SearchIcon />}
             size="large"
+            startIcon={<SearchIcon />}
+            disabled={loading}
+            sx={{ minWidth: { sm: 190 }, minHeight: 56 }}
           >
-            Search Weather
+            {loading ? "Loading…" : "Search weather"}
           </Button>
-
         </Stack>
       </form>
     </Paper>
